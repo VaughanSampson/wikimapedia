@@ -1,2 +1,2 @@
 # wikimapedia
-Interactive map to find geographic wikipedia articles.
+Interactive map web app to find geographic wikipedia articles.
