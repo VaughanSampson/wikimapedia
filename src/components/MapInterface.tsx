@@ -3,17 +3,16 @@ import { GoogleMap, useLoadScript } from "@react-google-maps/api";
 import './map-interface.css'
 
 export default function MapInterface(){
-     
-    /*
+      
     const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
     if (googleMapsApiKey === undefined) {
         return <div>Error</div>;
-    }  \
-    */
+    }
+    
 
     const { isLoaded } = useLoadScript({
-        googleMapsApiKey: /*googleMapsApiKey,*/ "AIzaSyBteKDQytB8p7Y4MAZikPM4Ou-t2sHxj-Y",
+        googleMapsApiKey: googleMapsApiKey,
     }); 
 
     if (!isLoaded) return <div>Loading...</div>;
