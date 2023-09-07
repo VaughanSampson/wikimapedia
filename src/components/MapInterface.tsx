@@ -1,4 +1,4 @@
-import { useState, FC} from "react";
+import { useMemo, useState } from "react";
 import { GoogleMap, useLoadScript, InfoWindow } from "@react-google-maps/api";
 import './map-interface.css'; 
 
@@ -14,14 +14,13 @@ export default function MapInterface(){
     }); 
 
     if (!isLoaded) return <div>Loading...</div>;
-    return <Map  />; 
+    return <Map/>; 
 }
 
 function Map(){  
-    const [infoWindow, setInfoWindow] = useState<any>(null);  
-    const [fetchedData, setFetchedData] = useState(<p>Loading.</p>)
+    const [infoWindowPosition, setInfoWindowPosition] = useState<google.maps.LatLng | null>(null);  
+    const [fetchedData, setFetchedData] = useState(<p>Loading.</p>) 
 
-    
     const geocoder = new google.maps.Geocoder();
  
     const GetGeocodeData = (latLng: google.maps.LatLng | null) =>{
@@ -37,47 +36,35 @@ function Map(){
           }
         })
         .catch((e) => window.alert("Geocoder failed due to: " + e));
-    }
+    }   
 
-    
-    const MapInfoWindow = (props: {latLng : google.maps.LatLng | null}) =>
-    {
-        if(props.latLng == null) return <></>; 
-
-        return ( 
-            <InfoWindow  options={{ zIndex:1, position: props.latLng, maxWidth: 320}} > 
-                <div  id = "infoWindowContent">
-                    {fetchedData}
-                </div>
-            </InfoWindow>   
-        );
-    }
-    
+    const center = useMemo(() => ({ lat: 38.886518, lng: -121.0166301 }), []);
 
     return ( 
         <div>  
             <GoogleMap  
-            id = "map"
-            zoom={10} 
-            center={{lat: -34.397, lng: 150.644}} 
-            mapContainerClassName="map-container" 
-            options={{
-                disableDoubleClickZoom:false,
-                clickableIcons:false
-            }}
-            onClick={ev => {
-                GetGeocodeData(ev.latLng);
-                setInfoWindow(<MapInfoWindow latLng={ev.latLng} />);
-            }}
-            >  
-
-            {
-            infoWindow
-            }
-
+                id = "map"
+                zoom={10} 
+                
+                center={center} 
+                mapContainerClassName="map-container" 
+                options={{
+                    disableDoubleClickZoom:false,
+                    clickableIcons:false
+                }}
+                onClick={ev => {
+                    GetGeocodeData(ev.latLng);
+                    setInfoWindowPosition(ev.latLng);
+                }}
+                >   
+                { infoWindowPosition &&
+                <InfoWindow onCloseClick={() => setInfoWindowPosition(null)} options={{ zIndex:1, position: infoWindowPosition, maxWidth: 320}} > 
+                    <div>
+                        {fetchedData}
+                    </div>
+                </InfoWindow>   
+                } 
             </GoogleMap>   
         </div>
-    );
-  
-
+    ); 
 }
