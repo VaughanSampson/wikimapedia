@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import {   ReactElement, useMemo, useState } from "react";
 import { GoogleMap, useLoadScript, InfoWindow } from "@react-google-maps/api";
 import './map-interface.css'; 
+import GetGeocodeData from '../api/GetGeocodeData';
+import GetWikipediaData from '../api/GetWikipediaData';
 
 export default function MapInterface(){  
     const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -19,25 +21,16 @@ export default function MapInterface(){
 
 function Map(){  
     const [infoWindowPosition, setInfoWindowPosition] = useState<google.maps.LatLng | null>(null);  
-    const [fetchedData, setFetchedData] = useState(<p>Loading.</p>) 
+    const [fetchedData, setFetchedData] = useState<ReactElement | undefined>(<p>Loading.</p>) 
 
-    const geocoder = new google.maps.Geocoder();
- 
-    const GetGeocodeData = (latLng: google.maps.LatLng | null) =>{
-        if( latLng == null) return; 
-        
-        geocoder.geocode({ location: latLng })
-        .then((response) => {
-          if (response.results[0]) {
-            console.log(response.results[0].formatted_address);
-            setFetchedData(<p>{response.results[0].formatted_address}</p>) 
-          } else {
-            window.alert("No results found");
-          }
-        })
-        .catch((e) => window.alert("Geocoder failed due to: " + e));
-    }   
+    const geocoder = new google.maps.Geocoder();  
 
+    async function GetInfoWindowContent(geocoder: google.maps.Geocoder,  latLng: google.maps.LatLng | null){ 
+        if( latLng == null) return;  
+        const text:string|undefined = await GetGeocodeData(geocoder, latLng);
+        if(text != undefined) setFetchedData(<p> {await GetWikipediaData(text)}</p>); 
+    } 
+    
     const center = useMemo(() => ({ lat: 38.886518, lng: -121.0166301 }), []);
 
     return ( 
@@ -53,7 +46,7 @@ function Map(){
                     clickableIcons:false
                 }}
                 onClick={ev => {
-                    GetGeocodeData(ev.latLng);
+                    GetInfoWindowContent(geocoder, ev.latLng);
                     setInfoWindowPosition(ev.latLng);
                 }}
                 >   
