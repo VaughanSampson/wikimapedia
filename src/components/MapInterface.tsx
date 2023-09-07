@@ -1,6 +1,6 @@
 import { useState, FC} from "react";
 import { GoogleMap, useLoadScript, InfoWindow } from "@react-google-maps/api";
-import './map-interface.css'
+import './map-interface.css'; 
 
 export default function MapInterface(){  
     const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -19,7 +19,41 @@ export default function MapInterface(){
 
 function Map(){  
     const [infoWindow, setInfoWindow] = useState<any>(null);  
+    const [fetchedData, setFetchedData] = useState(<p>Loading.</p>)
+
     
+    const geocoder = new google.maps.Geocoder();
+ 
+    const GetGeocodeData = (latLng: google.maps.LatLng | null) =>{
+        if( latLng == null) return; 
+        
+        geocoder.geocode({ location: latLng })
+        .then((response) => {
+          if (response.results[0]) {
+            console.log(response.results[0].formatted_address);
+            setFetchedData(<p>{response.results[0].formatted_address}</p>) 
+          } else {
+            window.alert("No results found");
+          }
+        })
+        .catch((e) => window.alert("Geocoder failed due to: " + e));
+    }
+
+    
+    const MapInfoWindow = (props: {latLng : google.maps.LatLng | null}) =>
+    {
+        if(props.latLng == null) return <></>; 
+
+        return ( 
+            <InfoWindow  options={{ zIndex:1, position: props.latLng, maxWidth: 320}} > 
+                <div  id = "infoWindowContent">
+                    {fetchedData}
+                </div>
+            </InfoWindow>   
+        );
+    }
+    
+
     return ( 
         <div>  
             <GoogleMap  
@@ -32,6 +66,7 @@ function Map(){
                 clickableIcons:false
             }}
             onClick={ev => {
+                GetGeocodeData(ev.latLng);
                 setInfoWindow(<MapInfoWindow latLng={ev.latLng} />);
             }}
             >  
@@ -44,24 +79,5 @@ function Map(){
         </div>
     );
   
-}
 
-const MapInfoWindow = (props: {latLng : google.maps.LatLng | null}) =>
-{
-    if(props.latLng == null) return <></>;
-
-    return ( 
-        <InfoWindow  options={{ zIndex:1, position: props.latLng, maxWidth: 320}} > 
-            <p>
-                A tree needs to be your friend if you're going to paint him. The only
-                prerequisite is that it makes you happy. If it makes you happy then
-                it's good. I thought today we would do a happy little picture. This
-                present moment is perfect simply due to the fact you're experiencing
-                it. Work on one thing at a time. Don't get carried away - we have
-                plenty of time. I really believe that if you practice enough you could
-                paint the 'Mona Lisa' with a two-inch brush.
-            </p>
-        </InfoWindow>   
-    );
 }
- 
