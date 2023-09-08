@@ -1,11 +1,11 @@
 import {   ReactElement, useMemo, useState } from "react";
 import { GoogleMap, useLoadScript, InfoWindow } from "@react-google-maps/api";
 import GetGeocodeData from '../api/GetGeocodeData';
-import GetWikipediaData, {WikipediaSummary} from '../api/GetWikipediaData';
+import GetWikipediaData, {WikipediaResultsSummary} from '../api/GetWikipediaData';
 import './map-interface.css'; 
 
 export default function MapInterface(){  
-    const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    const googleMapsApiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
     if (googleMapsApiKey === undefined) {
         return <div>Error</div>;
@@ -30,30 +30,32 @@ function Map(){
         const geocodeText: string | undefined = await GetGeocodeData(geocoder, latLng);
         if(geocodeText != undefined)
         { 
-            const wikipediaResult: WikipediaSummary = await GetWikipediaData(geocodeText);
-            if(wikipediaResult.success)
+            const wikipediaResults: WikipediaResultsSummary = await GetWikipediaData(geocodeText);
+            if(wikipediaResults.success)
             {
                 setFetchedData(
-                <>
-                    <a href={wikipediaResult.link} target="_blank"> {wikipediaResult.title}</a> 
-                    <p>{wikipediaResult.geocode}</p>
-                </>
+                <ol>
+                    {
+                        wikipediaResults.data?.map((d, i) => <li key={i}><a href={d.link} target="_blank"> {d.title}</a> </li>) 
+                    } 
+                    <p>{wikipediaResults.geocode}</p>
+                </ol>
                 );  
             }
             else
             {
-                setFetchedData(<p> No results found for: {wikipediaResult.geocode}</p>);  
+                setFetchedData(<p> No results found for: {wikipediaResults.geocode}</p>);  
             }
         }
     } 
     
-    const center = useMemo(() => ({ lat: 38.886518, lng: -121.0166301 }), []);
-
+    const center = useMemo(() => ({ lat: 40.886518, lng: 65.0166301 }), []);
+    
     return ( 
         <div>  
             <GoogleMap  
                 id = "map"
-                zoom={10} 
+                zoom={4} 
                 
                 center={center} 
                 mapContainerClassName="map-container" 
@@ -62,6 +64,7 @@ function Map(){
                     clickableIcons:false
                 }}
                 onClick={ev => {
+                    setFetchedData(<p>Researching...</p>);
                     GetInfoWindowContent(geocoder, ev.latLng);
                     setInfoWindowPosition(ev.latLng);
                 }}

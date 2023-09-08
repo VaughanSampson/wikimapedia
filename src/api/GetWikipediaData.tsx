@@ -1,53 +1,66 @@
-
+ 
 async function GetWikipediaData (location: string) {
   
   const locationStringArray = location.split(' ');
  
-  while(locationStringArray.length > 2){
-    locationStringArray.shift(); 
+  while(locationStringArray.length > 1){
 
+    locationStringArray.shift();  
     const queryText = locationStringArray.reduce((acc,cur) => acc+"%20"+cur);  
+
+    //await GetGoogleSearchData(queryText); 
+
     const res = await FetchResultFromWikipediaAPI(queryText); 
     
     if (res == undefined) continue;
     const json = await res; 
     const hits = json["query"]["search"]; 
 
-    if (JSON.stringify(hits) !== '[]'){ 
-      const title: string = hits[0]["title"]; 
-      const link: string = "https://en.wikipedia.org/?curid=" + JSON.stringify(hits[0]["pageid"]);
-      return {
-        success: true,
-        title: title, 
-        link: link,
-        geocode: location
-      }
+    if (JSON.stringify(hits) !== '[]'){
+      return CreateListOfWikipediaResults(hits, location);
     }
   }
   
   return{
     success: false,
-    title: "None",
-    link: "",
-    geocode: location
-  }  
+    geocode: location, 
+    data: null
+  } 
 }  
+
+function CreateListOfWikipediaResults(hits: any[], location: string): WikipediaResultsSummary{
+  return {
+    success: true,
+    geocode: location,
+    data: hits.map(hit => {
+    const title: string = hit["title"]; 
+    const link: string = "https://en.wikipedia.org/?curid=" + JSON.stringify(hit["pageid"]);
+    return {
+      title: title, 
+      link: link,
+    } 
+  })
+
+  }
+}
 
 async function FetchResultFromWikipediaAPI(queryText: string){ 
   return await fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+queryText+"%20location"+"&format=json&formatversion=2&origin=*")
-  .then((response) => {
-    console.log(response);
+  .then((response) => { 
     return response.json(); 
   })
   .catch((e) => window.alert("Wikipedia request failed: " + e)); 
 }
  
-export type WikipediaSummary = 
-{
+
+export type WikipediaResultsSummary = 
+{ 
   success: boolean,
-  title: string, 
-  link: string ,
-  geocode: string
+    geocode: string,
+  data: {
+    title: string, 
+    link: string
+  }[] | null
 }  
 
 export default GetWikipediaData;
