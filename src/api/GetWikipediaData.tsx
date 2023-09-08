@@ -7,7 +7,7 @@ async function GetWikipediaData (location: string) {
     locationStringArray.shift(); 
 
     const queryText = locationStringArray.reduce((acc,cur) => acc+"%20"+cur);  
-    const res = await FetchData(queryText); 
+    const res = await FetchResultFromWikipediaAPI(queryText); 
     
     if (res == undefined) continue;
     const json = await res; 
@@ -30,19 +30,16 @@ async function GetWikipediaData (location: string) {
     title: "None",
     link: "",
     geocode: location
-  } 
- 
+  }  
 }  
 
-async function FetchData(queryText: string){
-
-  return await fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+queryText+"&format=json&formatversion=2&origin=*")
+async function FetchResultFromWikipediaAPI(queryText: string){ 
+  return await fetch("https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="+queryText+"%20location"+"&format=json&formatversion=2&origin=*")
   .then((response) => {
     console.log(response);
     return response.json(); 
   })
-  .catch((e) => window.alert("Wikipedia request failed: " + e));
-
+  .catch((e) => window.alert("Wikipedia request failed: " + e)); 
 }
  
 export type WikipediaSummary = 
