@@ -1,8 +1,8 @@
 import {   ReactElement, useMemo, useState } from "react";
 import { GoogleMap, useLoadScript, InfoWindow } from "@react-google-maps/api";
-import './map-interface.css'; 
 import GetGeocodeData from '../api/GetGeocodeData';
-import GetWikipediaData from '../api/GetWikipediaData';
+import GetWikipediaData, {WikipediaSummary} from '../api/GetWikipediaData';
+import './map-interface.css'; 
 
 export default function MapInterface(){  
     const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -27,8 +27,24 @@ function Map(){
 
     async function GetInfoWindowContent(geocoder: google.maps.Geocoder,  latLng: google.maps.LatLng | null){ 
         if( latLng == null) return;  
-        const text:string|undefined = await GetGeocodeData(geocoder, latLng);
-        if(text != undefined) setFetchedData(<p> {await GetWikipediaData(text)}</p>); 
+        const geocodeText: string | undefined = await GetGeocodeData(geocoder, latLng);
+        if(geocodeText != undefined)
+        { 
+            const wikipediaResult: WikipediaSummary = await GetWikipediaData(geocodeText);
+            if(wikipediaResult.success)
+            {
+                setFetchedData(
+                <>
+                    <a href={wikipediaResult.link} target="_blank"> {wikipediaResult.title}</a> 
+                    <p>{wikipediaResult.geocode}</p>
+                </>
+                );  
+            }
+            else
+            {
+                setFetchedData(<p> No results found for: {wikipediaResult.geocode}</p>);  
+            }
+        }
     } 
     
     const center = useMemo(() => ({ lat: 38.886518, lng: -121.0166301 }), []);
