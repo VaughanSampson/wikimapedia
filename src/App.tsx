@@ -1,13 +1,12 @@
 import './App.css'
 import MapInterface from './components/MapInterface.tsx'
 
-function App() { 
- 
-  return (
-    <>  
-    <MapInterface/>
-    </>
+/**
+ * Creates and returns a MapInterface
+ * @returns A Mapinterface component
+ */
+export default function App() {  
+  return ( 
+    <MapInterface/> 
   )
-}
-
-export default App
+} 
