@@ -31,8 +31,7 @@ export default async function GetWikipediaData (address: string) {
   }
   
   // If there were no successful query results, return a failure
-  return{
-    success: false,
+  return{ 
     geocode: address, 
     data: null
   } 
@@ -43,17 +42,14 @@ export default async function GetWikipediaData (address: string) {
    * @param address Address used for Wikipedia query
    * @returns WikipediaResultsSummary object of up to 10 successful query results
    */
-  function GenerateSummaryOfSuccessfulQuery(hits: any[], address: string): WikipediaResultsSummary{
-    return {
-      success: true,
+  function GenerateSummaryOfSuccessfulQuery(hits: Hit[], address: string): WikipediaResultsSummary{
+    return { 
       geocode: address,
-      data: hits.map(hit => {
-      const title: string = hit["title"]; 
-      const link: string = "https://en.wikipedia.org/?curid=" + JSON.stringify(hit["pageid"]);
-      return {
-        title: title, 
-        link: link,
-      };
+      data: hits.map(hit => { 
+        return {
+          title: hit.title, 
+          link: hit.pageid,
+        };
     })}
   }
 
@@ -72,15 +68,24 @@ export default async function GetWikipediaData (address: string) {
 }   
  
 /**
- * A type to store a group of Wikipedia page results.
+ * Interface of a set of Wikipedia results.
  */
-export type WikipediaResultsSummary = 
-{ 
-  success: boolean,
+export interface WikipediaResultsSummary
+{  
   geocode: string,
   data: {
     title: string, 
     link: string
   }[] | null
+}  
+ 
+ 
+/**
+ * Interface of a single successfully found Wikipedia result.
+ */
+export interface Hit
+{  
+  title: string,
+  pageid: string
 }  
  

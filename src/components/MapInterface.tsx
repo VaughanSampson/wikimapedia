@@ -55,10 +55,10 @@ function MapDisplayElement(){
                 const wikipediaResults: WikipediaResultsSummary = await GetWikipediaData(addressText);
 
                 // Store relevant React element to be rendered by the Google Maps InfoWindow
-                if(wikipediaResults.success) {
+                if(wikipediaResults.data != undefined) {
                     setInfoWindowContent(
                     <ol>
-                        {wikipediaResults.data?.map((d, i) => <li key={i}><a href={d.link} target="_blank"> {d.title}</a> </li>)} 
+                        {wikipediaResults.data.map((d, i) => <li key={i}><a href={d.link} target="_blank"> {d.title}</a> </li>)} 
                         <p>{wikipediaResults.geocode}</p>
                     </ol>
                     );  
