@@ -48,7 +48,7 @@ export default async function GetWikipediaData (address: string) {
       data: hits.map(hit => { 
         return {
           title: hit.title, 
-          link: hit.pageid,
+          pageid: hit.pageid,
         };
     })}
   }
@@ -75,7 +75,7 @@ export interface WikipediaResultsSummary
   geocode: string,
   data: {
     title: string, 
-    link: string
+    pageid: string
   }[] | null
 }  
  

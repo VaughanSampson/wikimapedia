@@ -58,7 +58,7 @@ function MapDisplayElement(){
                 if(wikipediaResults.data != undefined) {
                     setInfoWindowContent(
                     <ol>
-                        {wikipediaResults.data.map((d, i) => <li key={i}><a href={d.link} target="_blank"> {d.title}</a> </li>)} 
+                        {wikipediaResults.data.map((d, i) => <li key={i}><a href={"https://en.wikipedia.org/?curid="+d.pageid} target="_blank"> {d.title}</a> </li>)} 
                         <p>{wikipediaResults.geocode}</p>
                     </ol>
                     );  
